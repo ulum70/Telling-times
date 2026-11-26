@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Telling Times: 2 Player Challenge</title>
+<style>
+:root{--bg:#fff3d6;--card:#fffdf6;--tx:#1b2245;--mut:#5d6486;--p1:#1f6feb;--p2:#e63e86;--ok:#16a765;--bad:#e03a3e;--warn:#e9a800;--line:#e6d9b3;--cur:var(--p1);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12162e;--card:#1e2448;--tx:#f3f5ff;--mut:#aab1d8;--line:#343c6b;--p1:#5b9bff;--p2:#ff6aa8}}
+:root[data-theme="dark"]{--bg:#12162e;--card:#1e2448;--tx:#f3f5ff;--mut:#aab1d8;--line:#343c6b;--p1:#5b9bff;--p2:#ff6aa8}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tx);font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif}
+.scr{display:none;max-width:560px;margin:0 auto;padding:14px 14px 30px}.scr.on{display:block}
+h1{font-size:2.3rem;letter-spacing:.04em;margin:4px 0 0;text-align:center;font-weight:900}
+h2{text-align:center;margin:2px 0 12px;color:var(--p2);letter-spacing:.14em;font-size:1.05rem}
+.card{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:14px;margin-bottom:12px}
+.logo{width:120px;margin:6px auto 0}.logo svg{width:100%}
+label{display:block;font-weight:800;margin:8px 0}
+input{width:100%;font:inherit;font-size:1.1rem;padding:12px;border-radius:12px;border:3px solid var(--line);background:var(--bg);color:var(--tx);margin-top:4px}
+.l1 input{border-color:var(--p1)}.l2 input{border-color:var(--p2)}
+.btn{display:block;width:100%;font:inherit;font-weight:900;font-size:1.1rem;padding:14px;border-radius:14px;border:0;cursor:pointer;margin:8px 0;color:#fff;background:var(--p1)}
+.btn.go{background:var(--ok);font-size:1.3rem}.btn.sec{background:var(--card);color:var(--tx);border:3px solid var(--line)}
+.row{display:flex;gap:8px}.row .btn{margin:8px 0}
+.note{margin:6px 0 0;padding-left:18px;color:var(--mut);font-size:.9rem;line-height:1.5}
+#err{color:var(--bad);font-weight:800;min-height:1.2em}
+.top{text-align:center}#tm{font-size:3.6rem;font-weight:900;line-height:1;color:var(--ok);font-variant-numeric:tabular-nums}
+#tm.y{color:var(--warn)}#tm.r{color:var(--bad);animation:bl 1s ease-in-out infinite}
+@keyframes bl{50%{opacity:.55}}
+.top small{display:block;color:var(--mut);font-weight:700}
+#bar{height:10px;background:var(--line);border-radius:9px;overflow:hidden;margin:6px 0}#bar i{display:block;height:100%;width:100%;background:var(--ok)}
+.sc{display:flex;gap:8px}.pc{flex:1;border:3px solid var(--line);border-radius:14px;padding:6px 8px;background:var(--card);opacity:.7}
+.pc.act{opacity:1;box-shadow:0 0 0 3px var(--cur)}.pc b{display:block;font-size:.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pc span{font-size:1.6rem;font-weight:900}.pc small{display:block;font-size:.78rem;color:var(--mut)}
+#s0{border-color:var(--p1)}#s0 b,#s0 span{color:var(--p1)}#s1{border-color:var(--p2)}#s1 b,#s1 span{color:var(--p2)}
+#turn{margin:10px 0 6px;padding:8px;border-radius:12px;text-align:center;font-weight:900;font-size:1.2rem;color:#fff;background:var(--cur)}
+.qc{background:var(--card);border:3px solid var(--cur);border-radius:18px;padding:12px}
+.meta{display:flex;justify-content:space-between;font-size:.8rem;color:var(--mut);font-weight:800}
+#pr{font-size:1.15rem;font-weight:800;text-align:center;margin:8px 0}
+#vis{text-align:center;min-height:60px}.clk{width:100%;max-width:220px}
+.lcd{display:inline-block;font:900 2.6rem/1 "Courier New",monospace;background:#0f2a1d;color:#59f59b;padding:8px 16px;border-radius:12px}.lcd.sm{font-size:1.4rem;margin-top:6px}
+.big{font-size:1.8rem;font-weight:900;padding:6px}
+.sp{font-size:1.2rem;border:3px solid var(--line);background:var(--bg);border-radius:12px;min-width:46px;height:46px;cursor:pointer;color:var(--tx)}
+#qsp{display:block;margin:4px auto 8px}
+.orow{display:flex;gap:6px;margin:7px 0}.ans{flex:1;display:flex;align-items:center;gap:10px;text-align:left;min-height:56px;font:inherit;font-size:1.08rem;font-weight:800;padding:8px 12px;border-radius:14px;border:3px solid var(--line);background:var(--bg);color:var(--tx);cursor:pointer}
+.ans b{background:var(--cur);color:#fff;border-radius:9px;min-width:30px;height:30px;display:grid;place-items:center}
+.ans.ok{background:var(--ok);border-color:var(--ok);color:#fff}.ans.bad{background:var(--bad);border-color:var(--bad);color:#fff}.ans:disabled:not(.ok):not(.bad){opacity:.55}
+#fb{min-height:24px;text-align:center}.good{font-size:1.6rem;font-weight:900;color:var(--ok);animation:pop .4s}.badm{font-size:1.4rem;font-weight:900;color:var(--bad);animation:pop .4s}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
+.exp{font-size:.92rem;background:var(--bg);border-radius:10px;padding:8px;margin-top:4px;text-align:left}
+#hint{font-size:.82rem;color:var(--mut);text-align:center;margin:6px 0 0}
+.tbl{width:100%;border-collapse:collapse}.tbl td,.tbl th{padding:7px 4px;border-bottom:1px solid var(--line);text-align:center}.tbl th:first-child,.tbl td:first-child{text-align:left}
+.p1{color:var(--p1)}.p2{color:var(--p2)}.tc{text-align:center;font-size:3rem}
+.lr{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}.lr svg{width:72px;flex:none}.lr>div{flex:1}.en{font-weight:900;font-size:1.05rem}.idn{color:var(--mut);font-size:.88rem}
+.rv{border-left:6px solid var(--line);padding:6px 10px;margin:8px 0;background:var(--bg);border-radius:8px;font-size:.92rem}
+.rv.o{border-color:var(--ok)}.rv.x{border-color:var(--bad)}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:8px 14px;border-radius:20px;font-weight:800;display:none}
+
+#game{max-width:760px;padding:8px}.timers{display:flex;gap:8px;margin-bottom:8px}.timerbox{flex:1;text-align:center;background:var(--card);border:2px solid var(--line);border-radius:12px;padding:6px}.timerbox b{display:block;font-size:2rem;font-variant-numeric:tabular-nums;color:var(--ok)}.timerbox b.y{color:var(--warn)}.timerbox b.r{color:var(--bad);animation:bl 1s ease-in-out infinite}
+.two{display:flex;gap:8px;align-items:flex-start;margin-top:8px}.side{flex:1;min-width:0;transition:opacity .2s}#side0{--cur:var(--p1)}#side1{--cur:var(--p2)}
+.side.off{opacity:.5;pointer-events:none}
+.hd{text-align:center;font-weight:900;font-size:.85rem;padding:7px 4px;border-radius:10px;margin-bottom:6px;background:var(--line);color:var(--tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hd.on{background:var(--cur);color:#fff}
+#s0.act{box-shadow:0 0 0 3px var(--p1)}#s1.act{box-shadow:0 0 0 3px var(--p2)}
+.side .qc{padding:8px}.pr{font-size:.95rem;font-weight:800;text-align:center;margin:6px 0}.vis{text-align:center;min-height:40px}
+.side .clk{max-width:130px}.side .lcd{font-size:1.3rem;padding:4px 8px}.side .big{font-size:1.2rem}
+.side .ans{min-height:48px;font-size:.88rem;padding:6px;gap:6px}.side .ans b{min-width:22px;height:22px;font-size:.8rem}.ans svg{width:64px;flex:none}
+.qsp{display:block;margin:2px auto 6px}.sp.mini{min-width:34px;height:34px;font-size:.9rem;align-self:center}
+.fb{min-height:20px;text-align:center}.side .good{font-size:1.1rem}.side .badm{font-size:1rem}.side .exp{font-size:.75rem}
+.hint{font-size:.72rem;color:var(--mut);text-align:center;margin:4px 0 0}
+.set{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:6px 0;font-weight:800}.st{display:flex;align-items:center;gap:10px}
+.st button{width:42px;height:42px;border-radius:12px;border:3px solid var(--line);background:var(--bg);color:var(--tx);font-weight:900;font-size:1.3rem;cursor:pointer}.st b{min-width:26px;text-align:center;font-size:1.25rem}
+.eg{font-style:italic;margin-top:4px;font-weight:700}input[type=range]{padding:0;border:0;height:34px}.lab{text-align:center}.lab .clk{max-width:250px}.lab label{text-align:left}
+
+#modePick{display:flex;gap:8px;margin:10px 0}#modePick .btn{flex:1;font-size:1rem;padding:11px}
+#modePick .btn.selected{outline:3px solid var(--ok);outline-offset:2px}
+#game.solo .timerbox:nth-child(2),#game.solo #s1,#game.solo #side1{display:none}
+#home.solo-mode .l2{display:none}
+</style></head><body>
+
+<section id="home" class="scr on">
+ <div class="logo" id="logo"></div>
+ <h1>TELLING TIMES</h1><h2 id="modeTitle">2 PLAYER CHALLENGE</h2>
+  <div id="modePick"><button class="btn sec selected" id="twoMode">👥 2 PLAYERS</button><button class="btn sec" id="soloMode">🎯 PLAY SOLO</button></div>
+ <div class="card">
+  <label class="l1">Player 1<input id="n0" maxlength="12" placeholder="Name, e.g. Alex" autocomplete="off"></label>
+  <label class="l2">Player 2<input id="n1" maxlength="12" placeholder="Name, e.g. Emma" autocomplete="off"></label>
+  <div id="err"></div>
+  <div class="set"><span>⏱ Time (minutes)</span><div class="st"><button data-k="dur" data-d="-1">−</button><b id="vdur">2</b><button data-k="dur" data-d="1">+</button></div></div>
+  <div class="set"><span>⚠ Wrong answer penalty (seconds)</span><div class="st"><button data-k="pen" data-d="-1">−</button><b id="vpen">3</b><button data-k="pen" data-d="1">+</button></div></div>
+  <div class="idn" style="color:var(--mut);font-size:.85rem">Atur lama permainan (menit) dan pengurangan waktu saat jawaban salah (detik).</div>
+  <button class="btn go" id="start">START GAME</button>
+  <div class="row"><button class="btn sec" id="learn">📖 LEARN FIRST</button><button class="btn sec" id="how">HOW TO PLAY</button></div>
+  <button class="btn sec snd">🔊 Sound: ON</button>
+  <ul class="note"><li>Masukkan nama kedua pemain.</li><li>Jawab soal sebanyak mungkin dalam <b class="dv">2</b> menit.</li><li>Jawaban salah mengurangi waktu <b class="pv">3</b> detik.</li><li>Pemain dengan skor tertinggi menjadi pemenang.</li></ul>
+ </div>
+</section>
+
+<section id="how_s" class="scr">
+ <h1>HOW TO PLAY</h1>
+ <div class="card"><ol class="note" style="font-size:1rem;color:var(--tx)">
+  <li>Both players type their names. Player 1 goes first.<br><span class="idn">Kedua pemain mengisi nama. Player 1 mulai lebih dulu.</span></li>
+  <li>Player 1 plays on the LEFT, Player 2 on the RIGHT. Each player has a different question. Each player answers only on their own side.<br><span class="idn">Player 1 di kiri, Player 2 di kanan. Soal tiap pemain berbeda. Giliran berganti otomatis.</span></li>
+  <li>Each player has their own <b class="dv">2</b>-minute timer and their own questions. Both can play independently.<br><span class="idn">Setiap pemain punya timer dan soal sendiri. Keduanya bisa bermain tanpa menunggu giliran.</span></li>
+  <li>Correct = +10 points. Wrong = 0 points and −<b class="pv">3</b> seconds.<br><span class="idn">Benar +10 poin. Salah 0 poin dan waktu berkurang <b class="pv">3</b> detik.</span></li>
+  <li>Tap 🔊 to hear the English. Use the sound button to mute.<br><span class="idn">Tekan speaker untuk mendengar bahasa Inggris.</span></li>
+  <li>When the time is up, the highest score wins!<br><span class="idn">Skor tertinggi menjadi pemenang.</span></li></ol>
+  <button class="btn" data-go="home">BACK TO MENU</button></div>
+</section>
+
+<section id="learn_s" class="scr">
+ <h1>LEARN FIRST</h1><h2>Telling Times</h2>
+ <div id="learnBody"></div>
+ <button class="btn" data-go="home">BACK TO MENU</button>
+</section>
+
+<section id="game" class="scr">
+ <div class="timers"><div class="timerbox"><b id="tm0">02:00</b><small id="timername0">Player 1</small><div id="bar0"><i></i></div></div><div class="timerbox"><b id="tm1">02:00</b><small id="timername1">Player 2</small><div id="bar1"><i></i></div></div></div><div class="top"><small>Wrong answer = −<span class="pv">3</span> seconds for that player!</small></div>
+ <div class="sc"><div class="pc" id="s0"><b></b><span>0</span><small></small></div><div class="pc" id="s1"><b></b><span>0</span><small></small></div></div>
+ <div class="two"><div class="side" id="side0"></div><div class="side" id="side1"></div></div>
+ <button class="btn sec snd" style="margin-top:10px">🔊 Sound: ON</button>
+</section>
+
+<section id="result" class="scr"></section>
+<section id="review" class="scr"></section>
+<div id="toast"></div>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const R=n=>Math.floor(Math.random()*n),shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=R(i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const W=['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'],TN={2:'twenty',3:'thirty',4:'forty',5:'fifty'};
+const num=n=>n<20?W[n]:TN[Math.floor(n/10)]+(n%10?'-'+W[n%10]:'');
+const cap=s=>s[0].toUpperCase()+s.slice(1);
+const hw=h=>W[((h-1)%12+12)%12+1];
+const mins=n=>num(n)+(n%5?(n==1?' minute':' minutes'):'');
+const brit=(h,m)=>m==0?cap(hw(h))+' o’clock':m==15?'A quarter past '+hw(h):m==30?'Half past '+hw(h):m==45?'A quarter to '+hw(h+1):cap(m<30?mins(m)+' past '+hw(h):mins(60-m)+' to '+hw(h+1));
+const amer=(h,m)=>cap(hw(h)+' '+(m==0?'o’clock':m<10?'oh '+num(m):num(m)));
+const say=(h,m,st)=>st=='B'?brit(h,m):amer(h,m);
+const dig=(h,m)=>h+':'+String(m).padStart(2,'0');
+const STN={B:'British',A:'American'},LG={B:'en-GB',A:'en-US'};
+const per=x=>x>=4&&x<12?'in the morning':x>=12&&x<18?'in the afternoon':'at night';
+const PERS=['in the morning','in the afternoon','at night'];
+let snd=true,N=['',''],G=null,used=new Set(),recent=[],bag=[],AC;
+
+/* ---------- audio ---------- */
+function speak(t,lang){if(!snd){toast('Sound is off');return}if(!('speechSynthesis' in window))return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang=lang||'en-US';u.rate=.9;const v=speechSynthesis.getVoices().find(v=>v.lang.replace('_','-')==u.lang);if(v)u.voice=v;speechSynthesis.speak(u)}catch(e){}}
+function beep(seq){if(!snd)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();let t=AC.currentTime;seq.forEach(([f,d,ty])=>{const o=AC.createOscillator(),g=AC.createGain();o.type=ty||'sine';o.frequency.value=f;g.gain.setValueAtTime(.15,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d);t+=d*.9})}catch(e){}}
+function toast(t){const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(toast.i);toast.i=setTimeout(()=>e.style.display='none',1200)}
+$$('.snd').forEach(b=>b.onclick=()=>{snd=!snd;if(!snd&&'speechSynthesis' in window)speechSynthesis.cancel();$$('.snd').forEach(x=>x.textContent=snd?'🔊 Sound: ON':'🔇 Sound: OFF')});
+document.addEventListener('click',e=>{const s=e.target.closest('[data-say]');if(s)speak(s.dataset.say,s.dataset.lang)});
+
+/* ---------- clock ---------- */
+function clock(h,m,lab){let s='<svg viewBox="0 0 200 200" class="clk"><circle cx="100" cy="100" r="94" fill="var(--card)" stroke="var(--tx)" stroke-width="6"/>';
+ for(let i=0;i<60;i++){const a=i*Math.PI/30,l=i%5?4:9;s+=`<line x1="${100+88*Math.sin(a)}" y1="${100-88*Math.cos(a)}" x2="${100+(88-l)*Math.sin(a)}" y2="${100-(88-l)*Math.cos(a)}" stroke="var(--tx)" stroke-width="${i%5?1:3}"/>`}
+ for(let i=1;i<=12;i++){const a=i*Math.PI/6,r=lab?50:68;s+=`<text x="${100+r*Math.sin(a)}" y="${100-r*Math.cos(a)+(lab?5:6)}" text-anchor="middle" font-size="${lab?15:18}" font-weight="800" fill="var(--tx)">${i}</text>`;if(lab)s+=`<text x="${100+70*Math.sin(a)}" y="${100-70*Math.cos(a)+3}" text-anchor="middle" font-size="9" font-weight="800" fill="var(--p1)">${i%12*5}</text>`}
+ const hd=(deg,L,w,c)=>{const a=deg*Math.PI/180;return `<line x1="100" y1="100" x2="${100+L*Math.sin(a)}" y2="${100-L*Math.cos(a)}" stroke="${c}" stroke-width="${w}" stroke-linecap="round"/>`};
+ return s+hd((h%12)*30+m*.5,lab?40:46,8,'var(--tx)')+hd(m*6,lab?62:72,4,'var(--p1)')+'<circle cx="100" cy="100" r="6" fill="var(--p2)"/></svg>'}
+
+/* ---------- question generator ---------- */
+function cands(h,m){const w=x=>[((x[0]-1)%12+12)%12+1,((x[1]%60)+60)%60];
+ const pl=shuf([[h,60-m],[h+1,m],[h-1,m],[h,m+5],[h,m-5],[h,m+10],[h,m-10],[h+1,60-m],[h-1,60-m]]).map(w),rn=[];
+ for(let i=0;i<25;i++)rn.push([1+R(12),R(2)?5*R(12):R(60)]);
+ return pl.concat(rn).filter(c=>!(c[0]==h&&c[1]==m))}
+function opts(ans,cs,fmt,seen0){const seen=new Set([ans,...(seen0||[])]),o=[];for(const c of cs){const t=fmt(c);if(!seen.has(t)){seen.add(t);o.push(t);if(o.length==3)break}}return o}
+function nextPos(){if(!bag.length)bag=shuf([0,1,2,3]);return bag.pop()}
+function ex(h,m,st){const a=say(h,m,st),d=dig(h,m);
+ if(st=='A')return `American: say the hour first, then the minutes. ${a} = ${d}.`;
+ if(m==0)return `Exactly on the hour: ${a} = ${d}.`;
+ if(m<=30)return `Minutes 1–30 use PAST (lewat): ${a} = ${d}.`;
+ return `Minutes 31–59 use TO (menuju): 60 − ${m} = ${60-m} minutes to the NEXT hour (${hw(h+1)}). ${a} = ${d}.`}
+const HINT={read:'Jarum pendek = jam, jarum panjang = menit.',digi:'Ubah angka digital menjadi ungkapan bahasa Inggris.',style:'British: menit + jam. American: jam + menit.',fill:'Ingat: PAST = lewat (1–30), TO = menuju (31–59).',p2d:'Baca ungkapan lalu pilih angka jamnya.',ampm:'AM = dini hari sampai sebelum siang, PM = siang sampai malam.',listen:'Tekan speaker, dengarkan, lalu pilih jamnya.',quick:'Cepat! Lihat jam analog lalu pilih waktu digital.',fix:'Periksa lagi: gunakan PAST atau TO dengan jam yang benar.',cpick:'Jarum pendek = jam, jarum panjang = menit. Cocokkan dengan ungkapan.'};
+function mk(){
+ const T=['read','read','read','digi','digi','style','style','fill','fill','p2d','p2d','ampm','ampm','listen','listen','quick','fix','cpick','cpick','cpick'],t=T[R(T.length)];
+ let h=1+R(12),m=Math.random()<.65?5*R(12):R(60);
+ if(['style','fill','fix'].includes(t)&&m==0)m=5*(1+R(11));
+ if(t=='fill'){m-=m%5;if(!m)m=5*(1+R(11))}
+ const st=Math.random()<.75?'B':'A',d=dig(h,m),sy=say(h,m,st),ca=cands(h,m),fm=s=>c=>say(c[0],c[1],s),fd=c=>dig(c[0],c[1]);
+ const q={t,h,m,st,lang:LG[st],ex:ex(h,m,st),key:t+h+':'+m+st,diff:m%15==0?'EASY':m%5==0?'MEDIUM':'HARD',os:0,hint:HINT[t]};
+ let ans=sy,wr;
+ if(t=='read'){q.label='READ THE CLOCK';q.pr='What time is it? ('+STN[st]+')';q.vis=['clock',h,m];wr=opts(ans,ca,fm(st));q.os=1}
+ else if(t=='digi'){q.label='DIGITAL CLOCK';q.pr=`How do you say ${d} in ${STN[st]} English?`;q.vis=['both',h,m,d];wr=opts(ans,ca,fm(st));q.os=1}
+ else if(t=='style'){const os=st=='B'?'A':'B',oth=say(h,m,os);q.label='BRITISH OR AMERICAN';q.pr=`Choose the ${STN[st]} English expression for ${d}.`;q.vis=['both',h,m,d];wr=[oth,...opts(ans,ca,fm(st),[oth])].slice(0,3);q.os=1}
+ else if(t=='fill'){q.st='B';q.lang='en-GB';q.key=t+h+':'+m;const rel=m<=30?'past':'to',hr=m<=30?h:h+1,lead=m==15||m==45?'A quarter':m==30?'Half':cap(num(m<30?m:60-m));q.ex=`${brit(h,m)} = ${d}. `+ex(h,m,'B');q.label='FILL IN THE BLANK';
+  if(R(2)){q.vis=['text',`${lead} ___ ${hw(hr)}`,'('+d+')',h,m];ans=rel;wr=shuf(['past','to','at','in'].filter(x=>x!=rel))}
+  else{q.vis=['text',`${lead} ${rel} ___`,'('+d+')',h,m];ans=hw(hr);wr=[hw(hr+1),hw(hr-1),hw(hr+2)]}
+  q.pr='Complete the British English expression.';q.say=q.vis[1].replace('___','blank')}
+ else if(t=='p2d'){q.label='CHOOSE THE CORRECT TIME';q.pr=`Which time matches? (${STN[st]})`;q.vis=['text',sy];ans=d;wr=opts(ans,ca,fd);q.say=sy;q.ex=sy+' = '+d+'. '+q.ex}
+ else if(t=='ampm'){const pm=R(2),h24=h%12+12*pm,P=per(h24),A=pm?' PM':' AM',B=pm?' AM':' PM',ap=d+A,hn=h%12+1,mm=(60-m)%60;
+  if(R(2)){q.label='AM OR PM';q.pr=`Which expression represents ${d} ${P}?`;q.vis=['both',h,m,d];ans=ap;wr=opts(ans,shuf([d+B,dig(h,mm)+A,dig(h,mm)+B,dig(hn,m)+A,dig(hn,m)+B]).map(x=>[x]),c=>c[0]);q.ex=`${ap} = ${P}. AM = 00:00–11:59, PM = 12:00–23:59.`}
+  else{q.label='TIME CONVERSION';q.pr=`Convert ${ap} to words. (${STN[st]})`;q.vis=['both',h,m,ap];ans=sy+' '+P;wr=PERS.filter(x=>x!=P).map(x=>sy+' '+x).concat([say(ca[0][0],ca[0][1],st)+' '+P]);q.os=1;q.ex=`${ans} = ${ap}. AM = 00:00–11:59, PM = 12:00–23:59.`}
+  q.key=t+h+':'+m+st+pm}
+ else if(t=='listen'){q.label='LISTEN AND CHOOSE';q.pr='Listen and choose the correct time.';q.vis=['text','🔊 Tap the speaker'];ans=d;wr=opts(ans,ca,fd);q.say=sy;q.auto=1;q.ex=`Audio: “${sy}” = ${d}. `+q.ex}
+ else if(t=='cpick'){q.label='WHICH CLOCK?';q.pr='Which clock matches this time? ('+STN[st]+')';q.vis=['text',sy];ans=d;wr=opts(ans,ca,fd);q.oc=1;q.say=sy;q.ex=sy+' = '+d+'. '+q.ex}else if(t=='quick'){q.label='QUICK TIME CHALLENGE';q.pr='Quick! Which digital time is this?';q.vis=['clock',h,m];ans=d;wr=opts(ans,ca,fd);q.ex=`The clock shows ${d}. `+q.ex}
+ else{const bad=say(ca[0][0],ca[0][1],st);q.label='FIX THE MISTAKE';q.pr=`The clock shows ${d}. A student wrote “${bad}”. Choose the correct ${STN[st]} English expression.`;q.vis=['both',h,m,d];wr=opts(ans,ca,fm(st),[bad]);q.os=1}
+ const pos=nextPos();wr=wr.slice(0,3);wr.splice(pos,0,ans);q.o=wr;q.c=pos;q.ans=ans;q.say=q.say||q.pr;return q}
+function gen(){for(let i=0;i<60;i++){const q=mk(),tk=q.h+':'+q.m;if(!used.has(q.key)&&!recent.includes(tk)){used.add(q.key);recent.push(tk);if(recent.length>6)recent.shift();return q}}const q=mk();used.add(q.key);return q}
+
+/* ---------- navigation ---------- */
+function show(id){if('speechSynthesis' in window)try{speechSynthesis.cancel()}catch(e){}$$('.scr').forEach(s=>s.classList.toggle('on',s.id==id));scrollTo(0,0)}
+$$('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));
+$('#how').onclick=()=>show('how_s');
+$('#logo').innerHTML=clock(10,10);
+
+/* ---------- learn ---------- */
+const pad=n=>String(n).padStart(2,'0');
+const ACT=[['School starts at {T}.','Sekolah dimulai pukul {I}.'],['The bus leaves at {T}.','Bus berangkat pukul {I}.'],['Our class begins at {T}.','Kelas kami dimulai pukul {I}.'],['The train arrives at {T}.','Kereta tiba pukul {I}.'],['The movie starts at {T}.','Film dimulai pukul {I}.'],['The shop opens at {T}.','Toko buka pukul {I}.'],['We meet at {T}.','Kami bertemu pukul {I}.'],['The bell rings at {T}.','Bel berbunyi pukul {I}.']];
+const PN={'in the morning':'pagi','in the afternoon':'siang','at night':'malam'};
+const idnT=(h,m,pp)=>{if(!pp)return pad(h)+'.'+pad(m);const x=pp=='in the morning'?h:pp=='in the afternoon'?h%12+12:(h==12?0:h<4?h:h+12);return pad(x)+'.'+pad(m)+' '+PN[pp]};
+let ri=0,learnBuilt=0;
+function sent(t,pp,h,m){const a=ACT[ri++%ACT.length];return [a[0].replace('{T}',t[0].toLowerCase()+t.slice(1)),a[1].replace('{I}',idnT(h,m,pp))]}
+const sp=(t,l)=>`<button class="sp mini" data-say="${esc(t)}" data-lang="${l}" aria-label="Listen">🔊</button>`;
+const row=(h,m,st,pp,idn)=>{const t=say(h,m,st)+(pp?' '+pp:''),[se,si]=sent(t,pp,h,m);return `<div class="lr">${clock(h,m)}<div><b>${dig(h,m)}</b> <i>${STN[st]}</i><div class="en">${esc(t)} ${sp(t,LG[st])}</div><div class="idn">${idn||'Pukul '+idnT(h,m,pp)}</div><div class="eg">${esc(se)} ${sp(se,LG[st])}</div><div class="idn">${esc(si)}</div></div></div>`};
+const LS=[
+['Reading an analog clock','Jarum pendek (tebal) = JAM. Jarum panjang (biru) = MENIT. Angka 1 = 5 menit, 3 = 15, 6 = 30, 9 = 45, 12 = 00.',[[4,30,'B','','Sekarang pukul setengah lima atau 04.30.'],[6,45,'B','','Sekarang pukul 06.45.'],[9,15,'A','','Sekarang pukul 09.15.']]],
+['British Style: Minute + Hour','Sebutkan menit dulu, lalu jam. O’clock = tepat (menit 00).',[[3,0,'B'],[7,0,'B'],[10,0,'B']]],
+['PAST = lewat','Untuk menit 1–30.',[[2,5,'B'],[4,10,'B'],[8,20,'B'],[9,25,'B']]],
+['TO = menuju / kurang','Untuk menit 31–59. Sebut sisa menit menuju jam BERIKUTNYA.',[[2,35,'B'],[4,40,'B'],[8,50,'B'],[10,55,'B']]],
+['A QUARTER = seperempat = 15 menit','',[[3,15,'B'],[5,45,'B']]],
+['HALF = setengah = 30 menit','',[[2,30,'B'],[9,30,'B'],[11,30,'B']]],
+['American Style: Hour + Minute','Sebutkan jam dulu, lalu menit. Menit 01–09 dibaca “oh”.',[[9,15,'A'],[10,45,'A'],[7,5,'A'],[3,30,'A'],[11,50,'A'],[12,0,'A'],[6,8,'A']]],
+['AM and PM','AM = 00:00–11:59. PM = 12:00–23:59. AM/PM bukan British/American: keduanya menunjukkan waktu dalam sehari.',[[4,30,'B','in the morning','Pukul 04.30 pagi.'],[9,15,'A','in the morning','Pukul 09.15 pagi.'],[2,15,'B','in the afternoon','Pukul 14.15 siang.'],[10,45,'A','at night','Pukul 22.45 malam.']]]];
+function labUpd(){const h=+$('#rh').value,m=+$('#rm').value,b=brit(h,m),a=amer(h,m),[se,si]=sent(b,'',h,m);$('#lh').textContent=h;$('#lm').textContent=m;
+ $('#labv').innerHTML=clock(h,m,1)+`<div class="lcd sm">${dig(h,m)}</div><div class="lr"><div><i>British</i><div class="en">${esc(b)} ${sp(b,'en-GB')}</div></div></div><div class="lr"><div><i>American</i><div class="en">${esc(a)} ${sp(a,'en-US')}</div></div></div><div class="eg">${esc(se)} ${sp(se,'en-GB')}</div><div class="idn">${esc(si)}</div>`}
+$('#learn').onclick=()=>{if(!learnBuilt){learnBuilt=1;
+ $('#learnBody').innerHTML=`<div class="card lab"><h3 style="margin:0">🔬 Clock Lab</h3><div class="idn">Geser untuk mengubah jam dan menit. Angka biru = menit.</div><div id="labv"></div><label>Hour: <b id="lh">4</b><input type="range" id="rh" min="1" max="12" value="4"></label><label>Minute: <b id="lm">30</b><input type="range" id="rm" min="0" max="59" value="30"></label></div>`+LS.map(([t,n,r])=>`<div class="card"><h3 style="margin:0 0 4px">${t}</h3><div class="idn">${n}</div>${r.map(x=>row(...x)).join('')}</div>`).join('');
+ $('#rh').oninput=$('#rm').oninput=labUpd;labUpd()}show('learn_s')};
+
+/* ---------- game ---------- */
+let DUR=2,PEN=3,MODE='two';
+function chooseMode(mode){
+ MODE=mode;
+ $('#home').classList.toggle('solo-mode',MODE==='solo');
+ $('#modeTitle').textContent=MODE==='solo'?'SOLO CHALLENGE':'2 PLAYER CHALLENGE';
+ $('#twoMode').classList.toggle('selected',MODE==='two');
+ $('#soloMode').classList.toggle('selected',MODE==='solo');
+ $('#n1').required=MODE==='two';
+ $('#n0').placeholder=MODE==='solo'?'Your name':'Name, e.g. Alex';
+}
+$('#twoMode').onclick=()=>chooseMode('two');
+$('#soloMode').onclick=()=>chooseMode('solo');
+function setTxt(){$$('.dv').forEach(e=>e.textContent=DUR);$$('.pv').forEach(e=>e.textContent=PEN);$('#vdur').textContent=DUR;$('#vpen').textContent=PEN}
+$$('[data-k]').forEach(b=>b.onclick=()=>{const d=+b.dataset.d;if(b.dataset.k=='dur')DUR=Math.min(10,Math.max(1,DUR+d));else PEN=Math.min(10,Math.max(0,PEN+d));setTxt()});setTxt();
+$('#start').onclick=()=>{const a=$('#n0').value.trim(),b=$('#n1').value.trim();
+ if(!a){$('#err').textContent=MODE==='solo'?'Please enter your name.':'Both players must enter a name.';return}
+ if(MODE==='two'&&!b){$('#err').textContent='Both players must enter a name.';return}
+ if(MODE==='two'&&a.toLowerCase()==b.toLowerCase()){$('#err').textContent='Please use two different names.';return}
+ $('#err').textContent='';N=MODE==='solo'?[a,'']:[a,b];begin()};
+const SIDE='<div class="hd"></div><div class="qc"><div class="meta"><span class="qn"></span><span class="tag"></span></div><div class="pr"></div><div class="vis"></div><button class="sp qsp" aria-label="Listen to the question">🔊</button><div class="opts"></div><div class="fb"></div><p class="hint"></p></div>';
+[0,1].forEach(i=>$('#side'+i).addEventListener('click',e=>{const b=e.target.closest('.ans');if(b)answer(i,+b.dataset.i)}));
+function begin(){if(G){clearInterval(G.iv);(G.to||[]).forEach(clearTimeout)}
+ const ms=DUR*60000,now=Date.now();
+ G={total:ms,remaining:MODE==='solo'?[ms,0]:[ms,ms],lastTick:now,sc:[0,0],ok:[0,0],bad:[0,0],log:[],n:[0,0],q:[null,null],lock:[false,false],to:[null,null],over:false,mode:MODE};used=new Set();recent=[];bag=[];
+ $('#game').classList.toggle('solo',MODE==='solo');
+ $('#s0 b').textContent=(MODE==='solo'?'':'P1: ')+N[0];$('#s1 b').textContent='P2: '+N[1];$('#timername0').textContent=N[0];$('#timername1').textContent=N[1];show('game');
+ [0,1].forEach(i=>{$('#side'+i).innerHTML=SIDE;if(MODE==='two'||i===0){G.q[i]=gen();render(i)}});
+ upd();if(G.q[0].auto&&snd)speak(G.q[0].say,G.q[0].lang);
+ if(MODE==='two'&&G.q[1].auto&&snd)speak(G.q[1].say,G.q[1].lang);
+ G.iv=setInterval(tick,100);tick()}
+function upd(){[0,1].forEach(i=>{const e=$('#s'+i),sd=$('#side'+i),alive=G.remaining[i]>0;
+ e.querySelector('span').textContent=G.sc[i]+' pts';e.querySelector('small').textContent=`✔ ${G.ok[i]}  ✘ ${G.bad[i]}`;
+ e.classList.toggle('act',alive);sd.classList.toggle('off',!alive);
+ const h=sd.querySelector('.hd');h.textContent=alive?`${N[i]}: play your question`:`${N[i]}: TIME'S UP`;h.classList.toggle('on',alive);
+ if(!alive)sd.querySelectorAll('.ans').forEach(b=>b.disabled=true);
+})}
+function tick(){if(!G||G.over)return;const now=Date.now(),elapsed=now-G.lastTick;G.lastTick=now;
+ for(let i=0;i<2;i++)if(G.remaining[i]>0)G.remaining[i]=Math.max(0,G.remaining[i]-elapsed);
+ [0,1].forEach(i=>{const r=G.remaining[i],sec=Math.ceil(r/1000),e=$('#tm'+i),y=Math.max(30000,G.total/3);
+ e.textContent=pad(Math.floor(sec/60))+':'+pad(sec%60);e.className=sec<=15?'r':r<=y?'y':'';
+ const bar=$('#bar'+i+' i');if(bar){bar.style.display='block';bar.style.height='6px';bar.style.width=Math.min(100,r/G.total*100)+'%';bar.style.background=sec<=15?'var(--bad)':r<=y?'var(--warn)':'var(--ok)'}});
+ upd();if(G.remaining.every(r=>r<=0))finish()}
+function render(i){const q=G.q[i],sd=$('#side'+i),f=x=>sd.querySelector(x),v=q.vis;G.n[i]++;
+ f('.qn').textContent='Q'+G.n[i];f('.tag').textContent=q.label;f('.pr').textContent=q.pr;f('.fb').innerHTML='';f('.hint').textContent=q.hint;
+ f('.vis').innerHTML=v[0]=='clock'?clock(v[1],v[2]):v[0]=='both'?clock(v[1],v[2])+`<div class="lcd sm">${esc(v[3])}</div>`:`<div class="big">${esc(v[1])}</div>`+(v[2]?`<div class="lcd sm">${esc(v[2])}</div>`:'')+(v[4]?clock(v[3],v[4]):'');
+ f('.qsp').dataset.say=q.say;f('.qsp').dataset.lang=q.lang;
+ f('.opts').innerHTML=q.o.map((t,k)=>`<div class="orow"><button class="ans" data-i="${k}" aria-label="${esc(t)}"><b>${'ABCD'[k]}</b>${q.oc?clock(...t.split(':').map(Number)):`<span>${esc(t)}</span>`}</button>${q.os?sp(t,q.lang):''}</div>`).join('')}
+function answer(p,k){if(!G||G.over||G.remaining[p]<=0||G.lock[p])return;G.lock[p]=true;const q=G.q[p],ok=k==q.c,sd=$('#side'+p),f=x=>sd.querySelector(x);
+ sd.querySelectorAll('.ans').forEach((b,j)=>{b.disabled=true;if(j==q.c)b.classList.add('ok');else if(j==k)b.classList.add('bad')});
+ if(ok){G.sc[p]+=10;G.ok[p]++;beep([[660,.12],[880,.12],[1320,.22]]);f('.fb').innerHTML=`<div class="good">${['CORRECT!','GREAT JOB!','EXCELLENT!','WELL DONE!'][R(4)]} +10</div>`}
+ else{G.bad[p]++;G.remaining[p]=Math.max(0,G.remaining[p]-PEN*1000);beep([[220,.25,'sawtooth'],[150,.35,'sawtooth']]);f('.fb').innerHTML=`<div class="badm">WRONG!${PEN?' −${PEN} s':''}</div><div class="exp">Correct: <b>${esc(q.ans)}</b><br>${esc(q.ex)}</div>`}
+ G.log.push({p,pr:(q.vis[0]=='clock'?`[Analog clock ${dig(q.h,q.m)}] `:'')+q.pr+(q.t=='fill'?' '+q.vis[1]:''),ch:q.o[k],ans:q.ans,ok,ex:q.ex});
+ upd();tick();clearTimeout(G.to[p]);G.to[p]=setTimeout(()=>{if(G.over||G.remaining[p]<=0)return;G.q[p]=gen();render(p);G.lock[p]=false;upd();if(G.q[p].auto&&snd)speak(G.q[p].say,G.q[p].lang)},ok?900:2400)}
+
+/* ---------- results ---------- */
+function finish(){if(G.over)return;G.over=true;clearInterval(G.iv);(G.to||[]).forEach(clearTimeout);$$('.ans').forEach(b=>b.disabled=true);
+ [0,1].forEach(i=>{if(G.remaining[i]<=0)$('#tm'+i).textContent='00:00'});beep([[523,.15],[659,.15],[784,.35]]);
+ const[a,b]=G.sc,w=a>b?0:b>a?1:-1,tot=i=>G.ok[i]+G.bad[i],acc=i=>tot(i)?Math.round(G.ok[i]/tot(i)*100):0;
+ const msg=['Great effort! Keep practising and you will master telling time!','Well played! Every question makes your English stronger.','Fantastic work! Try again and beat your own score!'][R(3)];
+ if(G.mode==='solo'){
+  $('#result').innerHTML=`<div class="tc">🏆</div><h1>TIME'S UP!</h1><h2 class="p1" style="font-size:1.6rem;letter-spacing:0">${esc(N[0])}</h2>
+   <div class="card"><table class="tbl"><tr><th>YOUR RESULT</th><th>Score</th></tr><tr><td>Points</td><td><b>${a}</b></td></tr><tr><td>Correct</td><td>${G.ok[0]}</td></tr><tr><td>Wrong</td><td>${G.bad[0]}</td></tr><tr><td>Accuracy</td><td>${acc(0)}%</td></tr><tr><td>Answered</td><td>${tot(0)}</td></tr></table><p style="text-align:center;font-weight:800">${msg}</p></div>
+   <button class="btn go" id="again">PLAY AGAIN</button><button class="btn sec" id="rev">REVIEW ANSWERS</button><button class="btn sec" id="menu">BACK TO MENU</button>`;
+ }else{
+  $('#result').innerHTML=`<div class="tc">${w<0?'🤝':'🏆'}</div><h1>${w<0?'DRAW!':'WINNER!'}</h1><h2 class="${w==1?'p2':'p1'}" style="font-size:1.6rem;letter-spacing:0;color:${w<0?'var(--tx)':''}">${w<0?'Both players tied':esc(N[w])}</h2>
+   <div class="card"><table class="tbl"><tr><th></th><th class="p1">${esc(N[0])}</th><th class="p2">${esc(N[1])}</th></tr>
+   <tr><td>Score</td><td><b>${a}</b></td><td><b>${b}</b></td></tr><tr><td>Correct</td><td>${G.ok[0]}</td><td>${G.ok[1]}</td></tr><tr><td>Wrong</td><td>${G.bad[0]}</td><td>${G.bad[1]}</td></tr><tr><td>Accuracy</td><td>${acc(0)}%</td><td>${acc(1)}%</td></tr><tr><td>Answered</td><td>${tot(0)}</td><td>${tot(1)}</td></tr></table><p style="text-align:center;font-weight:800">${msg}</p></div>
+   <button class="btn go" id="again">PLAY AGAIN</button><button class="btn sec" id="rev">REVIEW ANSWERS</button><button class="btn sec" id="menu">BACK TO MENU</button>`;
+ }
+ $('#again').onclick=begin;$('#menu').onclick=()=>show('home');$('#rev').onclick=review;show('result')}
+function review(){$('#review').innerHTML=`<h1>REVIEW</h1>`+(G.log.map((l,i)=>`<div class="rv ${l.ok?'o':'x'}"><b class="${l.p?'p2':'p1'}">${esc(N[l.p])}</b> — Q${i+1} ${l.ok?'✔':'✘'}<br>${esc(l.pr)}<br>Answer given: <b>${esc(l.ch)}</b><br>Correct: <b>${esc(l.ans)}</b><br><span class="idn">${esc(l.ex)}</span></div>`).join('')||'<p>No answers yet.</p>')+`<button class="btn" id="bk">BACK TO RESULTS</button>`;$('#bk').onclick=()=>show('result');show('review')}
+if('speechSynthesis' in window)try{speechSynthesis.getVoices()}catch(e){}
+</script></body></html>
